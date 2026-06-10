@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인공지능 기말 한 방 정리 · CNN · RNN · LSTM · GRU</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --paper:#FBFAF7; --surface:#FFFFFF;
+    --ink:#16243F; --ink-soft:#4A5568; --muted:#8A93A3;
+    --navy:#1E3A6E; --navy-deep:#142A52; --navy-tint:#EAF0FA; --navy-line:#CBD9EE;
+    --amber:#C77E16; --amber-soft:#FBF0D8; --amber-line:#EBCF95;
+    --coral:#C0463F; --coral-soft:#FBE9E7;
+    --green:#2E7D55; --green-soft:#E4F2EA;
+    --line:#E7E2D7; --line-soft:#F0ECE3;
+    --radius:14px;
+    --font:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font); line-height:1.72; font-size:17px;
+    -webkit-font-smoothing:antialiased; letter-spacing:-0.01em;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:0 22px}
+
+  /* ---------- header ---------- */
+  header.hero{
+    background:linear-gradient(160deg,var(--navy-deep),var(--navy) 70%);
+    color:#fff; padding:64px 0 56px; position:relative; overflow:hidden;
+  }
+  header.hero::after{
+    content:""; position:absolute; right:-80px; top:-80px; width:340px; height:340px;
+    background:radial-gradient(circle,rgba(199,126,22,.32),transparent 65%); pointer-events:none;
+  }
+  .eyebrow{font-size:13px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--amber)}
+  header.hero .eyebrow{color:#F2C77A}
+  header.hero h1{font-size:clamp(30px,5vw,46px); line-height:1.18; margin:.5rem 0 .7rem; font-weight:800; letter-spacing:-.02em}
+  header.hero p{font-size:18px; color:#D8E2F2; margin:0; max-width:620px}
+  .scope{
+    margin-top:26px; display:inline-flex; flex-wrap:wrap; gap:8px; padding:14px 18px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:12px; font-size:14.5px; color:#EAF0FA;
+  }
+  .scope b{color:#fff}
+  .chiprow{display:flex; gap:8px; flex-wrap:wrap; margin-top:20px}
+  .chiprow a{
+    background:#fff; color:var(--navy); text-decoration:none; font-weight:700; font-size:14px;
+    padding:8px 14px; border-radius:999px; transition:transform .12s ease;
+  }
+  .chiprow a:hover{transform:translateY(-2px)}
+
+  /* ---------- toc / sticky ---------- */
+  nav.toc{
+    position:sticky; top:0; z-index:30; background:rgba(251,250,247,.92);
+    backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--line);
+  }
+  nav.toc ul{max-width:920px; margin:0 auto; padding:11px 22px; display:flex; gap:6px; list-style:none; overflow-x:auto}
+  nav.toc a{
+    white-space:nowrap; text-decoration:none; color:var(--ink-soft); font-weight:600; font-size:14px;
+    padding:6px 12px; border-radius:8px;
+  }
+  nav.toc a:hover{background:var(--navy-tint); color:var(--navy)}
+
+  /* ---------- sections ---------- */
+  section{padding:54px 0 8px; border-bottom:1px solid var(--line-soft)}
+  .sec-label{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+  .sec-num{font-size:15px; font-weight:800; color:var(--amber); letter-spacing:.04em}
+  h2{font-size:clamp(24px,3.6vw,32px); font-weight:800; margin:.1rem 0 .2rem; letter-spacing:-.02em}
+  h2 .en{color:var(--muted); font-weight:600; font-size:.62em}
+  h3{font-size:21px; font-weight:800; margin:34px 0 8px; color:var(--navy-deep)}
+  h4{font-size:17.5px; font-weight:800; margin:22px 0 4px}
+  p{margin:.55rem 0}
+  strong{font-weight:800}
+  .lead{font-size:18.5px; color:var(--ink-soft)}
+
+  /* one-liner thesis box */
+  .thesis{
+    border-left:5px solid var(--navy); background:var(--navy-tint);
+    padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0; font-size:17px;
+  }
+  .thesis b{color:var(--navy-deep)}
+
+  /* exam callout */
+  .exam{
+    background:var(--amber-soft); border:1px solid var(--amber-line); border-radius:12px;
+    padding:14px 18px; margin:18px 0;
+  }
+  .exam .tag{font-weight:800; color:var(--amber); font-size:13px; letter-spacing:.08em; display:block; margin-bottom:3px}
+  .exam ul{margin:.3rem 0 0; padding-left:1.1rem}
+
+  .note{background:var(--green-soft); border:1px solid #BFE0CC; border-radius:12px; padding:12px 16px; margin:16px 0; font-size:15.5px}
+  .note b{color:var(--green)}
+  .warn{background:var(--coral-soft); border:1px solid #EFC4C1; border-radius:12px; padding:12px 16px; margin:16px 0; font-size:15.5px}
+  .warn b{color:var(--coral)}
+
+  ul.clean{padding-left:1.15rem; margin:.5rem 0}
+  ul.clean li{margin:.4rem 0}
+  .kw{background:#fff; border:1px solid var(--navy-line); color:var(--navy-deep); border-radius:6px; padding:1px 7px; font-weight:700; font-size:.92em; white-space:nowrap}
+  code{background:#F2EFE8; padding:2px 7px; border-radius:6px; font-size:.92em; font-family:'SF Mono',ui-monospace,Menlo,monospace; color:var(--navy-deep)}
+
+  /* figure */
+  figure{margin:22px 0; text-align:center}
+  figure svg{max-width:100%; height:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:10px}
+  figcaption{font-size:13.5px; color:var(--muted); margin-top:8px}
+
+  /* tables */
+  .tablewrap{overflow-x:auto; margin:18px 0}
+  table{border-collapse:collapse; width:100%; font-size:15px; background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line)}
+  th,td{padding:11px 13px; text-align:left; border-bottom:1px solid var(--line-soft); vertical-align:top}
+  th{background:var(--navy); color:#fff; font-weight:700; letter-spacing:.01em}
+  tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#FCFBF8}
+  td b{color:var(--navy-deep)}
+
+  /* model cards */
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:18px 0}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px}
+  .card .yr{font-size:12.5px; font-weight:800; color:var(--amber); letter-spacing:.05em}
+  .card h4{margin:.1rem 0 .35rem; font-size:18px; color:var(--navy-deep)}
+  .card p{margin:.2rem 0; font-size:14.5px; color:var(--ink-soft)}
+
+  /* quiz */
+  .q{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:14px 0}
+  .q .qn{font-weight:800; color:var(--navy)}
+  .q ol{margin:.5rem 0 0; padding-left:1.3rem}
+  .q ol li{margin:.2rem 0}
+  details.ans{margin-top:10px; border-top:1px dashed var(--line); padding-top:8px}
+  details.ans summary{cursor:pointer; font-weight:700; color:var(--amber); font-size:14.5px; list-style:none}
+  details.ans summary::-webkit-details-marker{display:none}
+  details.ans summary::before{content:"▸ "; }
+  details.ans[open] summary::before{content:"▾ "}
+  details.ans .body{margin-top:8px; font-size:15px; color:var(--ink-soft)}
+  details.ans .body b{color:var(--green)}
+
+  footer{padding:40px 0 70px; color:var(--muted); font-size:14px}
+  hr.soft{border:none; border-top:1px solid var(--line); margin:30px 0}
+
+  @media(max-width:560px){
+    body{font-size:16px}
+    section{padding:40px 0 6px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">인공지능 · 기말고사 완벽 정리</span>
+    <h1>한 파일로 끝내는<br>CNN · RNN · LSTM · GRU</h1>
+    <p>인공지능도, 수학도 처음인 사람을 위해 — 비유와 그림으로 개념을 잡고, 예상문제로 마무리합니다.</p>
+    <div class="scope">
+      📌 시험 범위: <b>CNN 파트 ~ RNN · LSTM · GRU 파트까지</b> · 객관식 10 + 단답형 5 + 서술형 2
+    </div>
+    <div class="chiprow">
+      <a href="#big">큰 그림</a>
+      <a href="#cnn">CNN</a>
+      <a href="#models">유명 CNN 모델</a>
+      <a href="#rnn">RNN</a>
+      <a href="#lstm">LSTM</a>
+      <a href="#gru">GRU</a>
+      <a href="#compare">비교표</a>
+      <a href="#quiz">예상문제</a>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <ul>
+    <li><a href="#big">0. 큰 그림</a></li>
+    <li><a href="#cnn">1. CNN</a></li>
+    <li><a href="#models">2. CNN 모델</a></li>
+    <li><a href="#rnn">3. RNN</a></li>
+    <li><a href="#lstm">4. LSTM</a></li>
+    <li><a href="#gru">5. GRU</a></li>
+    <li><a href="#compare">비교표</a></li>
+    <li><a href="#cheat">치트시트</a></li>
+    <li><a href="#quiz">예상문제</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ 0. BIG PICTURE ============ -->
+<section id="big">
+  <div class="sec-label"><span class="sec-num">00</span><span class="eyebrow">시작하기 전에</span></div>
+  <h2>가장 큰 그림 한 장</h2>
+  <p class="lead">AI 모델은 결국 <strong>“입력을 넣으면 정답을 맞히도록, 안에 든 숫자(가중치 weight)를 조금씩 고쳐 나가는 기계”</strong>예요. 사진을 넣어 “강아지!”라고 답하고, 틀리면 숫자를 살짝 고치고… 이걸 수없이 반복하는 게 <span class="kw">학습(training)</span>입니다.</p>
+
+  <div class="thesis">
+    오늘 배우는 4가지는 <b>“어떤 데이터를 잘 다루느냐”</b>로 나뉩니다.<br>
+    · <b>CNN</b> → <b>이미지(사진)</b>처럼 <b>공간(위치)</b>이 중요한 데이터<br>
+    · <b>RNN · LSTM · GRU</b> → <b>순서</b>가 중요한 데이터(시간 순서, 문장 속 단어 순서)
+  </div>
+
+  <p>그리고 셋의 관계는 한 줄로 끝납니다: <strong>RNN(기본·기억력 짧음) → LSTM(기억 보강) → GRU(LSTM 간소화)</strong>. 이 흐름만 잡고 들어가면 절반은 먹고 들어가요.</p>
+
+  <div class="exam">
+    <span class="tag">시험 포인트</span>
+    학습의 3단계는 어떤 모델이든 똑같습니다 — ① <span class="kw">순전파(Forward)</span>로 예측 → ② <span class="kw">손실(Loss)</span> 계산(정답과의 차이) → ③ <span class="kw">역전파(Backward)</span>로 기울기 구해 가중치 업데이트(<span class="kw">경사하강법, Gradient Descent</span>).
+  </div>
+</section>
+
+<!-- ============ 1. CNN ============ -->
+<section id="cnn">
+  <div class="sec-label"><span class="sec-num">01</span><span class="eyebrow">Convolutional Neural Network</span></div>
+  <h2>CNN <span class="en">합성곱 신경망 · 사진을 보는 AI</span></h2>
+
+  <div class="thesis"><b>핵심 한 줄:</b> 사진을 한꺼번에 보지 말고, <b>작은 영역을 조금씩 훑으며 “위치별 특징”</b>을 찾는다.</div>
+
+  <h3>왜 이렇게 할까?</h3>
+  <p>사진을 그냥 옛날식 신경망(<span class="kw">FC layer, 완전연결층</span>)에 넣으면 픽셀을 하나하나 따로 봐서 <strong>“눈은 코 위에 있다” 같은 위치 정보가 사라집니다.</strong> 사람도 강아지를 볼 때 픽셀을 세지 않고 “둥근 눈, 까만 코, 큰 귀” 같은 <strong>부분 모양</strong>을 보죠. CNN은 그걸 흉내 낸 겁니다. 픽셀 위치를 마구 섞으면 사람도 못 알아보듯, 이미지엔 <strong>위치별 패턴</strong>이 핵심이에요.</p>
+
+  <h3>입력 데이터 = 3차원 텐서</h3>
+  <p>이미지는 <span class="kw">(높이 Height, 너비 Width, 채널 Channel)</span> 3차원입니다. <strong>채널 = 색</strong>이에요. 흑백은 채널 <strong>1개</strong>, 컬러(RGB)는 <strong>3개</strong>. 예: 높이4·너비4·RGB면 텐서 모양은 <code>(4, 4, 3)</code>.</p>
+
+  <h3>CNN의 3대 부품</h3>
+
+  <h4>① 합성곱(Convolution) 층 — 특징을 찾는 “도장”</h4>
+  <p>작은 사각형 도장(<span class="kw">필터 = 커널 Kernel</span>)을 사진 위에서 왼→오, 위→아래로 움직이며 찍습니다. 도장이 닿는 자리마다 “여기 세로줄 있네”처럼 특징을 잡아내요. 그 결과 그림을 <span class="kw">특징 맵(Feature Map)</span>이라고 합니다.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="var(--font)">
+      <text x="80" y="22" font-size="14" font-weight="700" fill="#16243F">입력 이미지 (5×5)</text>
+      <!-- input grid -->
+      <g stroke="#CBD9EE" fill="#fff">
+        <g id="ig"></g>
+      </g>
+      <!-- draw 5x5 -->
+      <g>
+        <!-- generated cells -->
+        <g fill="#F7F9FD" stroke="#CBD9EE">
+          <rect x="40" y="35" width="160" height="160"/>
+        </g>
+        <g stroke="#CBD9EE">
+          <line x1="72" y1="35" x2="72" y2="195"/><line x1="104" y1="35" x2="104" y2="195"/>
+          <line x1="136" y1="35" x2="136" y2="195"/><line x1="168" y1="35" x2="168" y2="195"/>
+          <line x1="40" y1="67" x2="200" y2="67"/><line x1="40" y1="99" x2="200" y2="99"/>
+          <line x1="40" y1="131" x2="200" y2="131"/><line x1="40" y1="163" x2="200" y2="163"/>
+        </g>
+        <!-- highlighted 3x3 window -->
+        <rect x="40" y="35" width="96" height="96" fill="#1E3A6E" fill-opacity="0.12" stroke="#1E3A6E" stroke-width="2.5"/>
+      </g>
+      <!-- filter -->
+      <text x="280" y="22" font-size="14" font-weight="700" fill="#16243F">필터 (3×3)</text>
+      <g>
+        <rect x="270" y="60" width="96" height="96" fill="#FBF0D8" stroke="#C77E16" stroke-width="2"/>
+        <line x1="302" y1="60" x2="302" y2="156" stroke="#C77E16"/><line x1="334" y1="60" x2="334" y2="156" stroke="#C77E16"/>
+        <line x1="270" y1="92" x2="366" y2="92" stroke="#C77E16"/><line x1="270" y1="124" x2="366" y2="124" stroke="#C77E16"/>
+        <text x="318" y="178" font-size="13" fill="#C77E16" text-anchor="middle" font-weight="700">학습되는 숫자(weight)</text>
+      </g>
+      <text x="408" y="112" font-size="30" fill="#8A93A3" text-anchor="middle">✳</text>
+      <text x="408" y="135" font-size="12" fill="#8A93A3" text-anchor="middle">곱하고 더함</text>
+      <!-- output -->
+      <text x="500" y="22" font-size="14" font-weight="700" fill="#16243F">특징 맵 (3×3)</text>
+      <g>
+        <rect x="470" y="60" width="96" height="96" fill="#fff" stroke="#CBD9EE"/>
+        <line x1="502" y1="60" x2="502" y2="156" stroke="#CBD9EE"/><line x1="534" y1="60" x2="534" y2="156" stroke="#CBD9EE"/>
+        <line x1="470" y1="92" x2="566" y2="92" stroke="#CBD9EE"/><line x1="470" y1="124" x2="566" y2="124" stroke="#CBD9EE"/>
+        <rect x="470" y="60" width="32" height="32" fill="#1E3A6E" fill-opacity="0.18" stroke="#1E3A6E" stroke-width="2"/>
+      </g>
+      <path d="M576 108 H612" stroke="#8A93A3" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+      <text x="640" y="100" font-size="12" fill="#8A93A3" text-anchor="middle">한 칸</text>
+      <text x="640" y="116" font-size="12" fill="#8A93A3" text-anchor="middle">결과</text>
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8A93A3"/></marker></defs>
+    </svg>
+    <figcaption>필터를 한 칸씩 밀며(슬라이딩) 곱하고 더해서 → 특징 맵의 한 칸을 만든다.</figcaption>
+  </figure>
+
+  <ul class="clean">
+    <li><strong>학습되는 것 = 필터 안의 숫자들(weight)과 bias.</strong> AI가 “어떤 특징을 찾아야 잘 맞히지?”를 스스로 알아냅니다.</li>
+    <li>한 필터는 한 특징만 잡으니, <strong>여러 종류 필터</strong>를 써서 여러 특징을 뽑고, 그 결과들을 <strong>깊이(Depth, z축) 방향으로 쌓아</strong> 특징 맵을 만듭니다.</li>
+    <li><strong>컬러(RGB) 입력</strong>이면 필터의 채널 수도 입력에 맞춰 3개가 됩니다(앞 층의 채널 수에 항상 맞춤).</li>
+  </ul>
+
+  <h4>Conv 와 FC의 차이 (서술형 단골)</h4>
+  <ul class="clean">
+    <li><strong>주변(일부 영역)만 연결</strong> → <span class="kw">지역성(Locality)</span>: 위치 정보를 잃지 않음(선택과 집중).</li>
+    <li><strong>같은 필터를 사진 전체에 재사용</strong> → <span class="kw">가중치 공유(Weight sharing)</span>: 적은 수의 weight로 위치별 특징을 찾음.</li>
+  </ul>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>항목</th><th>Fully Connected (FC)</th><th>CNN (Conv)</th></tr></thead>
+    <tbody>
+      <tr><td><b>연결 방식</b></td><td>모든 노드 연결</td><td><b>일부(주변)만 연결</b></td></tr>
+      <tr><td><b>파라미터 수</b></td><td>많음</td><td><b>적음</b> (가중치 공유)</td></tr>
+      <tr><td><b>이미지 처리</b></td><td>비효율적</td><td><b>효율적</b></td></tr>
+      <tr><td><b>공간(위치) 정보</b></td><td>손실됨</td><td><b>유지됨</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>학습되는 층 vs 학습 안 되는 층 (객관식 단골)</h4>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>층</th><th>학습 파라미터?</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td><b>Convolution Layer</b></td><td>✅ O</td><td>필터 안의 weight·bias를 학습</td></tr>
+      <tr><td><b>Fully Connected Layer</b></td><td>✅ O</td><td>연결 가중치를 학습</td></tr>
+      <tr><td><b>Pooling Layer</b></td><td>❌ X</td><td>최댓값·평균을 ‘고르기’만 함 → 학습할 weight 없음</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="exam"><span class="tag">함정 주의</span> “학습 파라미터가 <u>없는</u> 층은?” → 답은 <b>Pooling Layer</b>. 단골 오답입니다.</div>
+
+  <h4>출력 크기 계산 — Stride 와 Padding</h4>
+  <p><span class="kw">스트라이드(Stride, S)</span> = 도장을 몇 칸씩 건너뛰며 움직이는지. <span class="kw">패딩(Padding, P)</span> = 가장자리 정보를 살리려고 입력 테두리에 0을 둘러주는 것.</p>
+  <div class="exam">
+    <span class="tag">시험 포인트 · 공식 암기</span>
+    출력 가로/세로 = <code>(입력크기 − F + 2P) / S + 1</code> &nbsp;(F = 필터 크기). 출력 채널 수 <code>D₂ = K</code> (필터 개수).<br>
+    예) 입력 (6,6,1) + 3×3 필터 1개(P=0, S=1) → 출력 (4,4,1). “새 특징 맵 + 크기 축소”.
+  </div>
+  <div class="note">
+    <b>계산 예제 (단답형 대비):</b> 입력 32×32, 필터 5×5, P=0, S=1 →
+    <code>(32 − 5 + 2·0) / 1 + 1 = 28</code> → <b>출력 28×28</b>. 필터를 64개 쓰면 출력은 <b>28×28×64</b>.
+  </div>
+
+  <h4>② 풀링(Pooling) 층 — 요약·압축</h4>
+  <p>특징 맵을 작게 줄이는 단계. 보통 2×2 칸에서 <strong>가장 큰 값만 남기면 Max Pooling</strong>, 평균을 내면 Average Pooling(그 외 L2-norm pooling 등).</p>
+  <figure>
+    <svg viewBox="0 0 520 180" xmlns="http://www.w3.org/2000/svg">
+      <text x="90" y="20" font-size="13" font-weight="700" fill="#16243F" text-anchor="middle">입력 (4×4)</text>
+      <g font-size="15" text-anchor="middle" fill="#16243F">
+        <rect x="20" y="30" width="140" height="140" fill="#fff" stroke="#CBD9EE"/>
+        <line x1="55" y1="30" x2="55" y2="170" stroke="#CBD9EE"/><line x1="90" y1="30" x2="90" y2="170" stroke="#CBD9EE"/><line x1="125" y1="30" x2="125" y2="170" stroke="#CBD9EE"/>
+        <line x1="20" y1="65" x2="160" y2="65" stroke="#CBD9EE"/><line x1="20" y1="100" x2="160" y2="100" stroke="#CBD9EE"/><line x1="20" y1="135" x2="160" y2="135" stroke="#CBD9EE"/>
+        <rect x="20" y="30" width="70" height="70" fill="#C0463F" fill-opacity="0.10"/>
+        <rect x="90" y="30" width="70" height="70" fill="#2E7D55" fill-opacity="0.10"/>
+        <text x="37" y="53">1</text><text x="72" y="53">1</text><text x="107" y="53">2</text><text x="142" y="53">4</text>
+        <text x="37" y="88">5</text><text x="72" y="88">6</text><text x="107" y="88">7</text><text x="142" y="88">8</text>
+        <text x="37" y="123">3</text><text x="72" y="123">2</text><text x="107" y="123">1</text><text x="142" y="123">0</text>
+        <text x="37" y="158">1</text><text x="72" y="158">2</text><text x="107" y="158">3</text><text x="142" y="158">4</text>
+      </g>
+      <text x="240" y="95" font-size="13" fill="#8A93A3" text-anchor="middle">Max Pool</text>
+      <text x="240" y="112" font-size="12" fill="#8A93A3" text-anchor="middle">2×2, stride 2</text>
+      <path d="M178 100 H300" stroke="#8A93A3" stroke-width="2" marker-end="url(#ar2)"/>
+      <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8A93A3"/></marker></defs>
+      <text x="380" y="20" font-size="13" font-weight="700" fill="#16243F" text-anchor="middle">출력 (2×2)</text>
+      <g font-size="17" text-anchor="middle" fill="#142A52" font-weight="700">
+        <rect x="320" y="50" width="120" height="100" fill="#fff" stroke="#CBD9EE"/>
+        <line x1="380" y1="50" x2="380" y2="150" stroke="#CBD9EE"/><line x1="320" y1="100" x2="440" y2="100" stroke="#CBD9EE"/>
+        <text x="350" y="82">6</text><text x="410" y="82">8</text>
+        <text x="350" y="132">3</text><text x="410" y="132">4</text>
+      </g>
+    </svg>
+    <figcaption>각 2×2 구역에서 최댓값만 남긴다 → 크기 절반으로 요약.</figcaption>
+  </figure>
+  <p><strong>풀링의 역할 3가지(단답형):</strong> ⓐ <strong>지역적 불변성</strong>(위치가 조금 틀어져도 같은 걸로 인식) ⓑ <strong>정보 요약</strong> ⓒ <strong>차원 축소</strong>(계산량 ↓).</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>풀링 종류</th><th>하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><b>Max Pooling</b></td><td>구역에서 <b>최댓값</b> 선택 (가장 흔히 사용)</td></tr>
+      <tr><td><b>Average Pooling</b></td><td>구역의 <b>평균값</b> 선택</td></tr>
+      <tr><td>L2-norm Pooling</td><td>구역 값들의 L2 노름 사용</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:15px;color:var(--ink-soft)">→ 공통점: <strong>특징 맵 크기를 줄이는 역할</strong>이며, <strong>학습 파라미터는 없음.</strong></p>
+
+  <h4>③ 완전연결(FC) 층 — 최종 판단</h4>
+  <p>지금까지 뽑은 특징 맵들을 한 줄로 쭉 펴고(<span class="kw">Flatten</span>), 일반 신경망 + <span class="kw">Softmax</span>로 “강아지 0.94, 고양이 0.01 …”처럼 <strong>최종 분류</strong>를 합니다. Softmax는 출력값을 합이 1인 확률로 바꿔주는 함수예요.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 150" xmlns="http://www.w3.org/2000/svg">
+      <g font-size="12.5" text-anchor="middle" fill="#4A5568" font-weight="700">
+        <rect x="10" y="45" width="60" height="60" rx="6" fill="#EAF0FA" stroke="#1E3A6E"/><text x="40" y="80">이미지</text>
+        <text x="95" y="80" fill="#8A93A3">→</text>
+        <rect x="110" y="40" width="70" height="70" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="145" y="78">Conv</text>
+        <text x="200" y="80" fill="#8A93A3">→</text>
+        <rect x="215" y="48" width="60" height="54" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="245" y="79">Pool</text>
+        <text x="295" y="80" fill="#8A93A3">→</text>
+        <rect x="310" y="44" width="70" height="62" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="345" y="79">Conv</text>
+        <text x="400" y="80" fill="#8A93A3">→</text>
+        <rect x="415" y="50" width="56" height="50" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="443" y="79">Pool</text>
+        <text x="488" y="80" fill="#8A93A3">→</text>
+        <rect x="503" y="44" width="80" height="62" rx="6" fill="#F7F9FD" stroke="#CBD9EE"/><text x="543" y="72">Flatten</text><text x="543" y="90" font-size="11">+ FC</text>
+        <text x="600" y="80" fill="#8A93A3">→</text>
+      </g>
+      <g font-size="12.5" text-anchor="start" fill="#142A52" font-weight="700">
+        <rect x="615" y="38" width="95" height="74" rx="6" fill="#FBF0D8" stroke="#C77E16"/>
+        <text x="625" y="58">🐶 0.94</text><text x="625" y="78">🐱 0.04</text><text x="625" y="98">🚗 0.02</text>
+      </g>
+      <text x="245" y="135" font-size="12" fill="#C77E16" text-anchor="middle" font-weight="700">앞쪽 = 단순한 특징(선·점)</text>
+      <text x="520" y="135" font-size="12" fill="#C77E16" text-anchor="middle" font-weight="700">뒤쪽 = 복잡한 특징(눈·코)</text>
+    </svg>
+    <figcaption>CNN 전체 흐름: Conv → Pool 반복 → Flatten → FC → 분류.</figcaption>
+  </figure>
+
+  <h3>꼭 기억할 직관</h3>
+  <ul class="clean">
+    <li><strong>특징의 계층</strong>: 입력에 가까운 층은 <strong>낮은 수준(선·모서리)</strong>, 깊어질수록 <strong>높은 수준(눈·얼굴 같은 의미 있는 패턴)</strong>을 잡습니다.</li>
+    <li><span class="kw">수용 영역(Receptive Field)</span>: 출력 한 칸이 “원본 이미지의 얼마나 넓은 범위”를 보는지. Conv를 여러 번 통과할수록 이 범위가 넓어집니다.</li>
+    <li><strong>3×3 두 번 vs 5×5 한 번</strong>: 같은 수용 영역이지만 3×3 두 번이 ① 파라미터 적고(3·3·2=18 &lt; 25) ② 비선형성 ↑ → 보통 더 유리.</li>
+    <li><strong>1×1 합성곱</strong>의 의미: 공간은 안 보고 <strong>채널 간 정보를 섞어 채널 수(차원)를 조절</strong> → 파라미터 절감용으로 자주 씀.</li>
+  </ul>
+</section>
+
+<!-- ============ 2. CNN MODELS ============ -->
+<section id="models">
+  <div class="sec-label"><span class="sec-num">02</span><span class="eyebrow">대표 아키텍처</span></div>
+  <h2>유명한 CNN 모델 4개 <span class="en">ImageNet 챔피언들</span></h2>
+  <p>매년 <span class="kw">ImageNet(ILSVRC)</span> 대회에서 1000종 사진 분류 경쟁이 열렸고, 2012년 AlexNet 이후 CNN이 휩쓸며 이제는 사람보다 잘 맞힙니다. 평가 지표는 보통 <span class="kw">Top-5 오류율</span>(예측 상위 5개 안에 정답이 있는지).</p>
+
+  <div class="cards">
+    <div class="card">
+      <span class="yr">2012</span>
+      <h4>AlexNet</h4>
+      <p>딥러닝 시대를 연 모델. <b>ReLU 첫 본격 사용</b>. 과적합 방지로 <b>데이터 증강(flip·crop)·드롭아웃(0.5)</b> 사용. 8개 층.</p>
+    </div>
+    <div class="card">
+      <span class="yr">2014</span>
+      <h4>VGGNet</h4>
+      <p><b>작은 3×3 필터만</b> 깊게 쌓음(padding=1, stride=1). 풀링할 때마다 채널 수 2배. 단순·일관된 구조가 특징.</p>
+    </div>
+    <div class="card">
+      <span class="yr">2014</span>
+      <h4>Inception (GoogLeNet)</h4>
+      <p>“1×1·3×3·5×5 중 뭐가 좋을지 모르니 <b>다 써보고 옆으로 붙이자(concat)</b>”. <b>1×1 conv로 연산량↓</b>, 보조 분류기로 기울기 소실 완화.</p>
+    </div>
+    <div class="card">
+      <span class="yr">2015</span>
+      <h4>ResNet</h4>
+      <p>핵심은 <b>스킵 연결(skip-connection)</b>. 아주 깊게(152층) 쌓아도 학습되게 만든 혁신. 1등 달성.</p>
+    </div>
+  </div>
+
+  <h3>Inception Net 더 알기</h3>
+  <ul class="clean">
+    <li><strong>여러 크기 필터 결과를 깊이(z축)로 concat</strong> → 크기를 맞추려고 stride=1 고정 + padding 조절.</li>
+    <li><strong>1×1 conv로 차원 축소</strong>: 3×3 통과 전에 채널을 미리 줄이면 파라미터가 확 줄어요(예: 89,856 → 11,712). “1×1을 먼저” 해야 효과가 큼.</li>
+    <li><span class="kw">보조 분류기(Auxiliary classifier)</span>: 중간에서도 손실을 계산해 기울기 소실 완화. <code>L_total = L1 + 0.3·(L2 + L3)</code>.</li>
+    <li>마지막은 <span class="kw">GAP(Global Average Pooling)</span>로 7×7×512 → 1×1×512처럼 채널별 평균 1개로 압축 → 과적합 방지, FC 의존 줄임.</li>
+    <li>성능: 7개 모델 <strong>앙상블</strong> + <span class="kw">TTA(Test Time Augmentation)</span>(이미지 1장을 144장으로 변형해 평균) → Top-5 오류 6.67%.</li>
+  </ul>
+  <div class="note"><b>앙상블 상식:</b> 여러 모델 결과를 합치는 기법. <b>하드 보팅</b>=다수결, <b>소프트 보팅</b>=확률 평균. Inception/ResNet은 <b>배깅(Bagging) + 소프트 보팅</b>으로 분산(variance)을 줄여 성능을 높였습니다.</div>
+
+  <h3>ResNet 더 알기 — 가장 출제 빈도 높음</h3>
+  <p><strong>문제 인식:</strong> ReLU+BN으로 기울기 소실을 해결했는데도, 모델이 <strong>너무 깊으면 오히려 학습이 안 됨(언더피팅)</strong>. 깊은 망은 얕은 망을 그대로 흉내(나머지 층은 항등 매핑)낼 수 있으니 더 잘해야 정상인데, <strong>훈련 오류(training error)조차 더 컸어요.</strong> 이 현상을 공식 용어로 <span class="kw">학습 저하(Degradation) 문제</span>라고 부릅니다. (나중에 밝혀진 원인: 깊어질수록 <span class="kw">Loss Landscape(손실 지형)</span>가 울퉁불퉁해짐.)</p>
+
+  <div class="warn">
+    <b>객관식 함정 · Degradation ≠ Overfitting:</b><br>
+    · <b>학습 저하(Degradation)</b> = <b>훈련 오류부터</b> 더 큼(학습 자체가 안 됨). ResNet이 풀려는 문제.<br>
+    · <b>과적합(Overfitting)</b> = 훈련은 잘되는데 <b>테스트만</b> 나쁨. 원인이 완전히 다름!
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 460 230" xmlns="http://www.w3.org/2000/svg" font-size="13" font-weight="700">
+      <text x="230" y="20" fill="#16243F" text-anchor="middle">스킵 연결(Residual Block)</text>
+      <rect x="150" y="40" width="160" height="42" rx="8" fill="#EAF0FA" stroke="#1E3A6E"/><text x="230" y="66" fill="#142A52" text-anchor="middle">weight layer + ReLU</text>
+      <rect x="150" y="110" width="160" height="42" rx="8" fill="#EAF0FA" stroke="#1E3A6E"/><text x="230" y="136" fill="#142A52" text-anchor="middle">weight layer</text>
+      <circle cx="230" cy="185" r="16" fill="#FBF0D8" stroke="#C77E16" stroke-width="2"/><text x="230" y="190" fill="#C77E16" text-anchor="middle" font-size="16">＋</text>
+      <!-- main path -->
+      <path d="M230 20 V40" stroke="#4A5568" stroke-width="2" marker-end="url(#a3)"/>
+      <path d="M230 82 V110" stroke="#4A5568" stroke-width="2" marker-end="url(#a3)"/>
+      <path d="M230 152 V169" stroke="#4A5568" stroke-width="2" marker-end="url(#a3)"/>
+      <path d="M230 201 V222" stroke="#4A5568" stroke-width="2" marker-end="url(#a3)"/>
+      <!-- skip -->
+      <path d="M330 28 H400 V185 H248" stroke="#C0463F" stroke-width="2.5" fill="none" marker-end="url(#a3r)"/>
+      <text x="408" y="110" fill="#C0463F" font-size="12.5">x 그대로</text>
+      <text x="408" y="126" fill="#C0463F" font-size="12.5">(identity)</text>
+      <text x="20" y="50" fill="#142A52" font-size="12.5">입력 x</text>
+      <text x="14" y="220" fill="#142A52" font-size="12.5">출력 = x + F(x)</text>
+      <defs>
+        <marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4A5568"/></marker>
+        <marker id="a3r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C0463F"/></marker>
+      </defs>
+    </svg>
+    <figcaption>출력 = x + F(x). 입력 x를 그대로 건너뛰어 더해준다.</figcaption>
+  </figure>
+
+  <ul class="clean">
+    <li><strong>왜 잘되나?</strong> 만들고 싶은 이상적 출력 H(x)가 입력과 비슷할 때(<code>H(x) ≈ x</code>), 보통 가중치는 0 근처로 초기화되니 <strong>F(x)≈0만 만들면 자동으로 H(x)≈x</strong>가 됩니다. 즉 <strong>“변화량(잔차, residual)만 학습”</strong>하면 돼서 쉬워져요. 그래서 이름이 <span class="kw">Residual Learning → ResNet</span>.</li>
+    <li>직관: 깊은 망에서는 한 층이 다 바꾸려 하지 말고 <strong>조금씩만 바꿔 나가라</strong>고 AI에게 귀띔하는 셈. (실제로 깊을수록 각 층 출력 편차 std가 작음.)</li>
+    <li>보통 <strong>2~3개 층을 건너뜀</strong>(한 층만 건너뛰면 효과 적음).</li>
+    <li><span class="kw">병목(Bottleneck)</span> 구조: 50층 이상에서 <strong>1×1로 채널↓ → 3×3 → 1×1로 채널↑</strong>(예 256→64→256). 파라미터 절감 (1×1=채널 조절, 3×3=공간 정보).</li>
+    <li>구조: 처음·끝 빼고 풀링 대신 <strong>stride=2</strong>로 크기 축소, 끝은 <strong>GAP</strong>. 실선=identity, 점선=projection(1×1로 크기·채널 맞춤) shortcut.</li>
+    <li>너무 깊게(1202층) 가면 이번엔 <strong>과적합(overfitting)</strong>이 일어나 110층보다 나빠짐.</li>
+  </ul>
+
+  <div class="exam">
+    <span class="tag">시험 포인트 · ResNet은 이 3개로 기억</span>
+    <ul>
+      <li><b>① Skip-connection(스킵 연결)</b> — 입력 x를 건너뛰어 더함: 출력 = x + F(x)</li>
+      <li><b>② Residual Learning(잔차 학습)</b> — 변화량(차이)만 학습 → 학습이 쉬워짐</li>
+      <li><b>③ 효과</b> — 아주 깊은 망을 학습 가능하게 + 기울기가 지름길로 흘러 <b>기울기 소실 완화</b></li>
+    </ul>
+    ※ ‘2~3층 건너뜀’은 부가 설명. 위 3개를 우선 외우세요.
+  </div>
+</section>
+
+<!-- ============ 3. RNN ============ -->
+<section id="rnn">
+  <div class="sec-label"><span class="sec-num">03</span><span class="eyebrow">Recurrent Neural Network</span></div>
+  <h2>RNN <span class="en">순환 신경망 · 순서를 기억하는 AI</span></h2>
+
+  <div class="thesis"><b>핵심 한 줄:</b> 지금 입력만 보지 말고, <b>바로 전 단계에서 기억한 내용도 함께</b> 보고 다음을 예측한다.</div>
+
+  <h3>왜 필요한가?</h3>
+  <p>“나는 밥을 ___” 다음 단어를 맞히려면 앞 단어 순서가 중요하죠. 주가·날씨·센서값처럼 <span class="kw">시간 순서대로 들어오는 데이터(시계열, time series)</span>도 마찬가지. 보통 신경망은 입력을 따로따로 보지만, RNN은 <strong>이전 시점 정보를 “기억”해서 다음으로 넘깁니다.</strong></p>
+
+  <div class="note"><b>딥러닝 이전 시계열 모델(객관식·단답형 대비 — 영문 키워드 매칭):</b></div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>모델</th><th>정확한 정의</th><th>핵심 영문 키워드</th></tr></thead>
+    <tbody>
+      <tr><td><b>AR</b> (AutoRegressive)</td><td>변수의 <b>현재 값</b>을 <b>자신의 과거 값들</b>을 기반으로 예측</td><td><b>past values</b> (과거 값)</td></tr>
+      <tr><td><b>MA</b> (Moving Average)</td><td>관측값과 <b>과거의 잔차 오차</b> 간의 관계에 초점</td><td><b>residual errors</b> (잔차 오차)</td></tr>
+      <tr><td><b>ARMA</b></td><td>AR + MA 결합. 데이터가 <b>정상성(stationary)</b>을 가져야 함</td><td>stationary</td></tr>
+      <tr><td><b>ARIMA</b></td><td>ARMA에 <b>차분(differencing)</b> 단계 추가 → 추세·계절성 제거</td><td>differencing</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="exam"><span class="tag">함정 주의</span> <b>AR = 과거 ‘값(values)’</b>, <b>MA = 과거 ‘오차(errors)’</b>. 이 둘을 바꿔치기한 보기가 오답으로 자주 나옵니다.</div>
+
+  <h3>작동 방식 — “메모”를 이어받기</h3>
+  <p>RNN에는 <span class="kw">은닉 상태(hidden state) hₜ</span>라는 “메모”가 있어요. 매 시점마다:</p>
+  <div class="thesis"><b>새 메모 hₜ = f( 지금 입력 xₜ + 바로 전 메모 hₜ₋₁ )</b> &nbsp;→ &nbsp; 출력 yₜ = g( hₜ )</div>
+  <p>식으로는 <code>hₜ = tanh(Wxh·xₜ + Whh·hₜ₋₁)</code>, <code>ŷₜ = softmax(Why·hₜ)</code>. 전 단계 기억을 계속 이어 흘려보내서 이름이 “순환(Recurrent)”입니다.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" font-size="13" font-weight="700">
+      <text x="320" y="18" fill="#16243F" text-anchor="middle">시간 순서로 펼친 RNN (unrolled)</text>
+      <g>
+        <!-- 3 time steps -->
+        <g>
+          <rect x="40" y="80" width="80" height="50" rx="10" fill="#EAF0FA" stroke="#1E3A6E"/><text x="80" y="110" fill="#142A52" text-anchor="middle">h(t-2)</text>
+          <rect x="60" y="155" width="40" height="30" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="80" y="175" fill="#4A5568" text-anchor="middle" font-size="12">x(t-2)</text>
+          <path d="M80 155 V130" stroke="#4A5568" stroke-width="2" marker-end="url(#a4)"/>
+        </g>
+        <g>
+          <rect x="280" y="80" width="80" height="50" rx="10" fill="#EAF0FA" stroke="#1E3A6E"/><text x="320" y="110" fill="#142A52" text-anchor="middle">h(t-1)</text>
+          <rect x="300" y="155" width="40" height="30" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="320" y="175" fill="#4A5568" text-anchor="middle" font-size="12">x(t-1)</text>
+          <path d="M320 155 V130" stroke="#4A5568" stroke-width="2" marker-end="url(#a4)"/>
+        </g>
+        <g>
+          <rect x="520" y="80" width="80" height="50" rx="10" fill="#EAF0FA" stroke="#1E3A6E"/><text x="560" y="110" fill="#142A52" text-anchor="middle">h(t)</text>
+          <rect x="540" y="155" width="40" height="30" rx="6" fill="#fff" stroke="#CBD9EE"/><text x="560" y="175" fill="#4A5568" text-anchor="middle" font-size="12">x(t)</text>
+          <path d="M560 155 V130" stroke="#4A5568" stroke-width="2" marker-end="url(#a4)"/>
+          <rect x="540" y="30" width="40" height="30" rx="6" fill="#FBF0D8" stroke="#C77E16"/><text x="560" y="50" fill="#C77E16" text-anchor="middle" font-size="12">ŷ(t)</text>
+          <path d="M560 80 V62" stroke="#C77E16" stroke-width="2" marker-end="url(#a4o)"/>
+        </g>
+        <!-- recurrent arrows -->
+        <path d="M120 105 H280" stroke="#C0463F" stroke-width="2.5" marker-end="url(#a4r)"/>
+        <path d="M360 105 H520" stroke="#C0463F" stroke-width="2.5" marker-end="url(#a4r)"/>
+        <text x="200" y="96" fill="#C0463F" text-anchor="middle" font-size="12">Whh (기억 전달)</text>
+        <text x="440" y="96" fill="#C0463F" text-anchor="middle" font-size="12">Whh</text>
+      </g>
+      <defs>
+        <marker id="a4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4A5568"/></marker>
+        <marker id="a4o" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C77E16"/></marker>
+        <marker id="a4r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C0463F"/></marker>
+      </defs>
+    </svg>
+    <figcaption>각 시점의 메모(h)가 다음 시점으로 전달된다. 같은 가중치를 매 시점 재사용.</figcaption>
+  </figure>
+
+  <div class="exam">
+    <span class="tag">시험 포인트 · 핵심 수식 (단답형 빈칸 최빈출)</span>
+    <p style="margin:.3rem 0;font-size:18px"><code>hₜ = tanh( <b style="color:#C0463F">Wxh</b>·xₜ + <b style="color:#C0463F">Whh</b>·hₜ₋₁ )</code></p>
+    <p style="margin:.3rem 0;font-size:18px"><code>ŷₜ = softmax( <b style="color:#C0463F">Why</b>·hₜ )</code></p>
+    빈칸으로 나오기 쉬워요: <code>hₜ = tanh( ____·xₜ + ____·hₜ₋₁ )</code> → 답: Wxh, Whh.
+  </div>
+
+  <h3>가중치 3종의 역할 (단답형 단골)</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>파라미터</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><b>Wxh</b></td><td>현재 입력(xₜ)을 반영</td></tr>
+      <tr><td><b>Whh</b></td><td>이전 시점 정보(hₜ₋₁)를 반영 ← 순환의 핵심</td></tr>
+      <tr><td><b>Why</b></td><td>현재 시점의 출력(yₜ)을 생성</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="exam">
+    <span class="tag">시험 포인트 · 반드시 암기</span>
+    <b>RNN의 핵심 특징 = 파라미터 공유(Parameter Sharing).</b> Wxh · Whh · Why는 <b>모든 시점에서 똑같은 값</b>을 재사용한다. (CNN의 ‘가중치 공유’와 짝지어 기억하세요.)
+  </div>
+
+  <h3>RNN 구조의 종류 (입력→출력 개수로 구분) — 객관식 단골</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>구조</th><th>입력 → 출력</th><th>대표 예시</th></tr></thead>
+    <tbody>
+      <tr><td><b>Many-to-One</b></td><td>여러 입력 → 출력 1개</td><td>감성분석 / 여러 시점 센서값 → 제품 정상·불량 판정</td></tr>
+      <tr><td><b>One-to-Many</b></td><td>입력 1개 → 여러 출력</td><td>이미지 캡셔닝(사진 1장 → 설명 문장)</td></tr>
+      <tr><td><b>Many-to-Many</b></td><td>입력마다 출력</td><td>품사 태깅(POS Tagging)</td></tr>
+      <tr><td><b>Many-to-Many (Encoder-Decoder)</b></td><td>입력 시퀀스 → 출력 시퀀스</td><td>기계 번역 (= Many-to-One + One-to-Many)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="exam"><span class="tag">암기 팁</span> “예시 → 구조 맞히기”가 자주 나옵니다. <b>감성분석=Many-to-One</b>, <b>이미지 캡셔닝=One-to-Many</b>, <b>품사태깅=Many-to-Many</b>, <b>번역=Encoder-Decoder</b>.</div>
+
+  <h3>학습 과정</h3>
+  <ul class="clean">
+    <li>① <strong>순전파(Forward)</strong>로 손실 계산 → ② <strong>역전파(Backward)</strong>로 기울기 계산 → ③ <strong>가중치 업데이트</strong>(학습률 η만큼, 경사하강법).</li>
+    <li>손실 함수: <strong>회귀</strong> 문제는 <span class="kw">MSE</span>(평균제곱오차), <strong>분류</strong> 문제는 <span class="kw">Cross Entropy</span>(교차 엔트로피).</li>
+  </ul>
+
+  <div class="exam">
+    <span class="tag">시험 포인트 · BPTT</span>
+    RNN의 역전파는 일반 역전파와 구분해 <span class="kw">BPTT (Backpropagation Through Time)</span>라고 부릅니다.
+    <ul>
+      <li>RNN의 <b>역전파 방법</b>으로, <b>시간축을 거슬러(과거 시점 방향으로)</b> 기울기를 전달한다.</li>
+      <li>이때 한 시점의 영향뿐 아니라 <b>이전 시점들로부터 전해진 영향까지 모두 더해</b> Whh·Wxh의 기울기를 구한다.</li>
+      <li><b>시퀀스가 길어질수록</b> 같은 항이 반복 곱해져 <b>기울기 소실(Vanishing Gradient)</b>이 발생 → 장기 의존성 문제로 이어진다.</li>
+    </ul>
+  </div>
+
+  <h3>RNN의 결정적 약점 (LSTM·GRU가 나온 이유)</h3>
+  <div class="warn">
+    <b>장기 의존성 문제(Long-term dependency):</b> 순서가 너무 길어지면 <b>맨 앞 정보가 뒤로 갈수록 점점 희미해져 사라진다.</b> → 한마디로 <b>“RNN은 기억력이 짧다.”</b>
+    <div style="margin-top:10px;font-size:15.5px">
+      <b>기울기 소실(Gradient Vanishing)이 생기는 흐름:</b><br>
+      ① 역전파(BPTT)를 시간축으로 반복 → ② <b>작은 기울기 값이 계속 곱해짐</b> → ③ 값이 거의 0이 되어 <b>앞쪽(과거) 층까지 전달되지 않음</b> → ④ 먼 과거를 학습 못 함 → <b>그래서 LSTM·GRU가 등장.</b>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. LSTM ============ -->
+<section id="lstm">
+  <div class="sec-label"><span class="sec-num">04</span><span class="eyebrow">Long Short-Term Memory</span></div>
+  <h2>LSTM <span class="en">기억력을 보강한 RNN</span></h2>
+
+  <div class="thesis"><b>핵심 한 줄:</b> RNN의 짧은 기억력을 고치려고, <b>“무엇을 기억하고 무엇을 잊을지” 조절하는 문(gate)</b>을 달았다.</div>
+
+  <h3>두 가지 기억</h3>
+  <ul class="clean">
+    <li><span class="kw">은닉 상태 hₜ</span> = <strong>단기 기억(Short-term)</strong></li>
+    <li><span class="kw">셀 상태 cₜ</span> = <strong>장기 기억(Long-term)</strong> — 정보를 멀리까지 실어 나르는 “컨베이어 벨트”</li>
+  </ul>
+
+  <h3>3개의 문(Gate) — 단답형 최빈출</h3>
+  <p><strong>게이트 = 정보를 얼마나 통과시킬지 정하는 0~1 사이의 가중치</strong>예요. <strong>0이면 “완전히 차단”, 1이면 “전부 통과”</strong>. 각 게이트는 식이 같은 꼴이고(<code>σ(Wxh·xₜ + Whh·hₜ₋₁ + b)</code>) <strong>서로 다른 파라미터</strong>를 써서 다른 값을 냅니다. (σ = 시그모이드, 0~1로 눌러주는 함수)</p>
+
+  <figure>
+    <svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg" font-size="13" font-weight="700">
+      <rect x="40" y="40" width="480" height="170" rx="16" fill="#F7F9FD" stroke="#CBD9EE"/>
+      <text x="280" y="30" fill="#16243F" text-anchor="middle">LSTM 셀 한 칸</text>
+      <!-- cell state line -->
+      <path d="M40 75 H520" stroke="#2E7D55" stroke-width="3"/>
+      <text x="70" y="68" fill="#2E7D55" font-size="12">셀 상태 cₜ (장기 기억)</text>
+      <!-- hidden line -->
+      <path d="M40 185 H520" stroke="#1E3A6E" stroke-width="2.5"/>
+      <text x="70" y="205" fill="#1E3A6E" font-size="12">은닉 상태 hₜ (단기 기억)</text>
+      <!-- gates -->
+      <g text-anchor="middle">
+        <circle cx="160" cy="130" r="30" fill="#FBE9E7" stroke="#C0463F"/><text x="160" y="127" fill="#C0463F" font-size="12">Forget</text><text x="160" y="142" fill="#C0463F" font-size="11">잊기 fₜ</text>
+        <circle cx="280" cy="130" r="30" fill="#EAF0FA" stroke="#1E3A6E"/><text x="280" y="127" fill="#1E3A6E" font-size="12">Input</text><text x="280" y="142" fill="#1E3A6E" font-size="11">저장 iₜ</text>
+        <circle cx="420" cy="130" r="30" fill="#FBF0D8" stroke="#C77E16"/><text x="420" y="127" fill="#C77E16" font-size="12">Output</text><text x="420" y="142" fill="#C77E16" font-size="11">출력 oₜ</text>
+      </g>
+      <path d="M160 100 V78" stroke="#C0463F" stroke-width="2" marker-end="url(#a5)"/>
+      <path d="M280 100 V78" stroke="#1E3A6E" stroke-width="2" marker-end="url(#a5b)"/>
+      <path d="M420 160 V182" stroke="#C77E16" stroke-width="2" marker-end="url(#a5o)"/>
+      <defs>
+        <marker id="a5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C0463F"/></marker>
+        <marker id="a5b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1E3A6E"/></marker>
+        <marker id="a5o" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C77E16"/></marker>
+      </defs>
+    </svg>
+    <figcaption>장기 기억(cₜ) 벨트 위에서 잊을 것/넣을 것/내보낼 것을 게이트가 조절한다.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>게이트</th><th>하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><b>망각 게이트 (Forget, fₜ)</b></td><td>과거 셀 상태에서 <b>버릴 정보</b>를 정함 (0이면 다 잊고, 1이면 다 기억)</td></tr>
+      <tr><td><b>입력 게이트 (Input, iₜ)</b></td><td>지금 정보 중 <b>새로 저장할 것</b>을 정함</td></tr>
+      <tr><td><b>출력 게이트 (Output, oₜ)</b></td><td>셀 상태를 은닉 상태로 <b>얼마나 내보낼지</b> 정함</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>업데이트 순서 (서술형 대비)</h3>
+  <ol class="clean">
+    <li><strong>게이트 3개 계산</strong> (각각 σ 적용).</li>
+    <li><strong>임시 셀 상태</strong> <code>c̃ₜ = tanh(...)</code> 만들기(현재 입력+과거 요약).</li>
+    <li><strong>셀 상태 갱신:</strong> <code>cₜ = fₜ ⊗ cₜ₋₁ ⊕ iₜ ⊗ c̃ₜ</code> → <strong>잊을 건 잊고, 더할 건 더함</strong> (⊗ = 원소별 곱).</li>
+    <li><strong>은닉 상태 갱신:</strong> <code>hₜ = oₜ ⊗ tanh(cₜ)</code>.</li>
+  </ol>
+  <div class="exam">
+    <span class="tag">시험 포인트 · 활성화 함수(단답형 빈칸 대비)</span>
+    <ul>
+      <li><b>게이트 3개(망각·입력·출력)</b>는 <b>0~1 비율</b>을 정해야 하므로 <b>시그모이드(σ, sigmoid)</b> 사용.</li>
+      <li><b>임시 셀 상태 c̃ₜ(새 기억 후보)</b>는 <b>−1~1</b> 범위가 필요하므로 <b>tanh</b> 사용.</li>
+      <li>최종 은닉 상태도 <code>tanh(cₜ)</code>를 거쳐 출력 게이트와 곱해짐.</li>
+    </ul>
+  </div>
+  <div class="note"><b>Peephole connection(참고):</b> 게이트가 입력·단기기억뿐 아니라 <b>장기기억(cell state)까지 엿보게(peep)</b> 개선한 변형.</div>
+</section>
+
+<!-- ============ 5. GRU ============ -->
+<section id="gru">
+  <div class="sec-label"><span class="sec-num">05</span><span class="eyebrow">Gated Recurrent Unit</span></div>
+  <h2>GRU <span class="en">LSTM을 가볍게 만든 버전</span></h2>
+
+  <div class="thesis"><b>핵심 한 줄:</b> LSTM과 비슷한 성능인데 <b>구조를 단순화해 더 가볍다.</b> 게이트 3개 → 2개, 기억 2종 → 1종.</div>
+
+  <h3>무엇이 줄었나</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>항목</th><th>LSTM</th><th>GRU</th></tr></thead>
+    <tbody>
+      <tr><td><b>게이트 수</b></td><td>3개 (망각·입력·출력)</td><td><b>2개</b> (업데이트 zₜ · 리셋 rₜ)</td></tr>
+      <tr><td><b>Cell State</b></td><td>있음 (셀 상태 + 은닉 상태)</td><td><b>없음</b> (은닉 상태로 통합)</td></tr>
+      <tr><td><b>파라미터 수</b></td><td>많음</td><td><b>적음</b></td></tr>
+      <tr><td><b>학습/추론 속도</b></td><td>느림</td><td><b>빠름</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <ul class="clean">
+    <li><span class="kw">업데이트 게이트 zₜ</span>: LSTM의 <strong>망각+입력 게이트 역할을 하나로</strong>. “과거를 얼마나 유지하고, 새것을 얼마나 받을지” 한 번에 결정.</li>
+    <li><span class="kw">리셋 게이트 rₜ</span>: 과거 정보를 <strong>얼마나 무시(reset)</strong>할지 결정.</li>
+    <li>은닉 상태 갱신: <code>hₜ = (1 − zₜ) ⊗ hₜ₋₁ ⊕ zₜ ⊗ h̃ₜ</code> — 과거와 새 정보를 비율로 섞음.</li>
+  </ul>
+
+  <div class="exam">
+    <span class="tag">시험 포인트 · 흐름 한 줄</span>
+    <b>RNN</b>(기본·기억력 짧음, 기울기 소실) → <b>LSTM</b>(게이트 3개 + 셀 상태로 기억 보강) → <b>GRU</b>(게이트 2개로 간소화, 가벼움). 셋 다 “순서 데이터”용이고, LSTM·GRU는 <b>장기 의존성 문제를 완화</b>한 모델.
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section id="compare">
+  <div class="sec-label"><span class="eyebrow">한눈에 비교</span></div>
+  <h2>전체 비교표</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>모델</th><th>잘 다루는 데이터</th><th>핵심 아이디어</th><th>꼭 외울 키워드</th></tr></thead>
+    <tbody>
+      <tr><td><b>CNN</b></td><td>이미지(공간)</td><td>필터로 위치별 특징 추출</td><td>합성곱·필터·특징맵·풀링·지역성·가중치공유</td></tr>
+      <tr><td><b>RNN</b></td><td>순서(시계열·문장)</td><td>이전 시점 기억을 이어받음</td><td>은닉상태·파라미터공유·장기의존성·BPTT</td></tr>
+      <tr><td><b>LSTM</b></td><td>긴 순서</td><td>게이트로 기억 조절</td><td>셀상태·망각/입력/출력 게이트</td></tr>
+      <tr><td><b>GRU</b></td><td>긴 순서(가볍게)</td><td>LSTM 간소화</td><td>업데이트·리셋 게이트·파라미터↓</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>객관식 대비 · 모델별 핵심 키워드 (이 단어들만 보면 답이 보임)</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>모델</th><th>핵심 키워드</th></tr></thead>
+    <tbody>
+      <tr><td><b>CNN</b></td><td>Locality(지역성) · Weight Sharing(가중치 공유) · Feature Map · Pooling · Receptive Field</td></tr>
+      <tr><td><b>RNN</b></td><td>Hidden State · Parameter Sharing · BPTT · Vanishing Gradient · 장기 의존성</td></tr>
+      <tr><td><b>LSTM</b></td><td>Cell State · Forget / Input / Output Gate · sigmoid·tanh</td></tr>
+      <tr><td><b>GRU</b></td><td>Update Gate · Reset Gate · 파라미터↓</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>자주 헷갈리는 용어 빠른 정리</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>용어</th><th>한 줄 뜻</th></tr></thead>
+    <tbody>
+      <tr><td><b>Stride</b></td><td>필터가 한 번에 몇 칸 이동하는지</td></tr>
+      <tr><td><b>Padding</b></td><td>입력 가장자리에 0을 둘러 크기·정보를 보존</td></tr>
+      <tr><td><b>Feature Map</b></td><td>합성곱 결과로 나온 특징 그림</td></tr>
+      <tr><td><b>Receptive Field</b></td><td>출력 한 칸이 보는 원본의 범위</td></tr>
+      <tr><td><b>ReLU</b></td><td>음수는 0, 양수는 그대로 통과시키는 활성화 함수</td></tr>
+      <tr><td><b>Softmax</b></td><td>출력을 합이 1인 확률로 변환</td></tr>
+      <tr><td><b>GAP</b></td><td>채널마다 평균 1개로 압축(과적합 방지)</td></tr>
+      <tr><td><b>기울기 소실</b></td><td>역전파에서 기울기가 0에 수렴 → 학습 안 됨</td></tr>
+      <tr><td><b>Skip-connection</b></td><td>입력을 건너뛰어 더함(ResNet)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>전체 발전 흐름 (서술형 2번 대비)</h3>
+  <p>“왜 이 모델들이 차례로 나왔는가”를 한 흐름으로 엮으면 서술형에서 강합니다.</p>
+  <figure>
+    <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" font-size="13" font-weight="700" text-anchor="middle">
+      <!-- CNN -->
+      <rect x="20" y="30" width="150" height="56" rx="10" fill="#EAF0FA" stroke="#1E3A6E"/>
+      <text x="95" y="55" fill="#142A52">CNN</text><text x="95" y="74" fill="#4A5568" font-size="11">이미지 특징 추출</text>
+      <!-- RNN -->
+      <rect x="20" y="120" width="150" height="56" rx="10" fill="#EAF0FA" stroke="#1E3A6E"/>
+      <text x="95" y="145" fill="#142A52">RNN</text><text x="95" y="164" fill="#4A5568" font-size="11">순서(시퀀스) 처리</text>
+      <!-- problem -->
+      <rect x="265" y="120" width="180" height="56" rx="10" fill="#FBE9E7" stroke="#C0463F"/>
+      <text x="355" y="145" fill="#C0463F">문제 발생</text><text x="355" y="164" fill="#C0463F" font-size="11">기울기 소실·장기 의존성</text>
+      <!-- LSTM -->
+      <rect x="265" y="30" width="180" height="56" rx="10" fill="#E4F2EA" stroke="#2E7D55"/>
+      <text x="355" y="55" fill="#2E7D55">LSTM</text><text x="355" y="74" fill="#4A5568" font-size="11">Cell State + 게이트 3개로 해결</text>
+      <!-- GRU -->
+      <rect x="510" y="30" width="170" height="56" rx="10" fill="#FBF0D8" stroke="#C77E16"/>
+      <text x="595" y="55" fill="#C77E16">GRU</text><text x="595" y="74" fill="#4A5568" font-size="11">LSTM 단순화(게이트 2개)</text>
+      <!-- arrows -->
+      <path d="M95 86 V120" stroke="#4A5568" stroke-width="2" marker-end="url(#fa)"/>
+      <text x="150" y="106" fill="#8A93A3" font-size="10" text-anchor="start">데이터 종류 다름</text>
+      <path d="M170 148 H265" stroke="#C0463F" stroke-width="2" marker-end="url(#fr)"/>
+      <path d="M355 120 V86" stroke="#2E7D55" stroke-width="2" marker-end="url(#fg)"/>
+      <path d="M445 58 H510" stroke="#C77E16" stroke-width="2" marker-end="url(#fo)"/>
+      <text x="600" y="150" fill="#4A5568" font-size="11.5" text-anchor="middle">성능 비슷 · 더 가볍고 빠름</text>
+      <path d="M595 86 V135 H460" stroke="#C77E16" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+      <defs>
+        <marker id="fa" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4A5568"/></marker>
+        <marker id="fr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C0463F"/></marker>
+        <marker id="fg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E7D55"/></marker>
+        <marker id="fo" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C77E16"/></marker>
+      </defs>
+    </svg>
+    <figcaption>CNN(이미지) → RNN(순서) → [기울기 소실 문제] → LSTM(셀 상태로 해결) → GRU(간소화).</figcaption>
+  </figure>
+  <div class="exam"><span class="tag">서술형 한 문단 템플릿</span> “CNN은 이미지의 위치별 특징을 뽑고, RNN은 순서 데이터를 처리한다. 그러나 RNN은 시퀀스가 길어지면 <b>기울기 소실로 장기 의존성 문제</b>가 생긴다. 이를 <b>LSTM</b>이 <b>셀 상태와 3개의 게이트</b>로 완화했고, <b>GRU</b>는 LSTM을 <b>게이트 2개로 간소화</b>해 더 가볍게 만들었다.”</div>
+
+  <div class="warn"><b>시험 범위 밖(참고만):</b> 두 번째 자료 뒤쪽의 <b>Seq2Seq · Attention · Transformer</b>는 교수님 메일상 “GRU 파트까지”라 출제 범위가 아닙니다. 다만 “RNN의 한계(고정 길이·정보 손실)를 극복하려 나온 후속 모델”이라는 큰 맥락만 알아두면 충분합니다.</div>
+</section>
+
+<!-- ============ CHEAT SHEET ============ -->
+<section id="cheat">
+  <div class="sec-label"><span class="eyebrow">최종 암기</span></div>
+  <h2>시험 직전 30초 치트시트</h2>
+  <ul class="clean">
+    <li><strong>CNN</strong>: 필터로 <strong>위치별 특징</strong> 추출. 합성곱→풀링→FC(Flatten+Softmax). 출력크기 <code>(W−F+2P)/S+1</code>.</li>
+    <li><strong>Conv vs FC</strong>: 지역성(Locality) + 가중치 공유 → 적은 weight로 위치 정보 보존.</li>
+    <li><strong>풀링 3역할</strong>: 불변성·요약·차원축소. Max=최댓값, Avg=평균.</li>
+    <li><strong>AlexNet</strong>=ReLU·드롭아웃 첫 사용 / <strong>VGG</strong>=3×3만 깊게 / <strong>Inception</strong>=여러 필터 concat+1×1로 절감 / <strong>ResNet</strong>=skip-connection(잔차 학습)으로 초깊은 망 가능.</li>
+    <li><strong>RNN</strong>: <code>hₜ = tanh(Wxh·xₜ + Whh·hₜ₋₁)</code>. 가중치 Wxh·Whh·Why를 <strong>모든 시점 공유</strong>. 약점 = <strong>장기 의존성/기울기 소실</strong>.</li>
+    <li><strong>LSTM</strong>: 셀상태(장기)+은닉상태(단기), 게이트 <strong>3개(망각·입력·출력)</strong>.</li>
+    <li><strong>GRU</strong>: 게이트 <strong>2개(업데이트·리셋)</strong>, 기억 통합, 더 가벼움.</li>
+    <li><strong>관계</strong>: RNN → LSTM → GRU.</li>
+  </ul>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <div class="sec-label"><span class="eyebrow">실전 점검</span></div>
+  <h2>예상문제 (객관식 10 · 단답형 5 · 서술형 2)</h2>
+  <p class="lead">교수님 출제 형식 그대로 만들었어요. 먼저 풀고, “정답 보기”를 눌러 확인하세요.</p>
+
+  <h3>객관식 10문제</h3>
+
+  <div class="q"><p class="qn">1. CNN이 이미지를 처리할 때 일반 FC layer보다 나은 이유로 가장 적절한 것은?</p>
+    <ol type="①"><li>모든 픽셀을 더 자세히 보기 때문</li><li>위치(공간) 정보를 보존하기 때문</li><li>색을 흑백으로 바꾸기 때문</li><li>파라미터를 무한히 늘리기 때문</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — Conv는 주변만 연결(지역성)해 위치 정보를 유지한다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">2. 합성곱 연산에서 실제로 ‘학습되는’ 대상은?</p>
+    <ol type="①"><li>입력 이미지의 픽셀값</li><li>출력 특징 맵</li><li>필터(커널) 안의 가중치와 bias</li><li>풀링 영역의 크기</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>③</b> — 필터 속 weight와 bias가 학습 파라미터다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">3. 입력 크기 28, 필터 3×3, padding 0, stride 1일 때 출력 한 변의 크기는? (공식 <code>(W−F+2P)/S+1</code>)</p>
+    <ol type="①"><li>26</li><li>27</li><li>28</li><li>30</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>①</b> — (28−3+0)/1+1 = 26.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">4. 풀링(Pooling)의 역할이 <u>아닌</u> 것은?</p>
+    <ol type="①"><li>차원 축소</li><li>지역적 불변성 확보</li><li>정보 요약</li><li>새로운 색 채널 생성</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>④</b> — 풀링은 채널을 새로 만들지 않는다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">5. 다음 중 ‘스킵 연결(skip-connection)’을 제안한 모델은?</p>
+    <ol type="①"><li>AlexNet</li><li>VGGNet</li><li>Inception</li><li>ResNet</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>④</b> — ResNet(2015), 출력 = x + F(x).</div></details>
+  </div>
+
+  <div class="q"><p class="qn">6. RNN에서 ‘이전 시점의 정보’를 현재로 전달하는 가중치는?</p>
+    <ol type="①"><li>Wxh</li><li>Whh</li><li>Why</li><li>Softmax</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — Whh가 이전 은닉 상태를 다음으로 전달한다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">7. RNN의 대표적 한계로 옳은 것은?</p>
+    <ol type="①"><li>이미지를 처리하지 못함</li><li>순서가 길어지면 앞 정보가 사라지는 장기 의존성 문제</li><li>가중치를 시점마다 모두 다르게 써야 함</li><li>출력이 항상 1개뿐</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — 기울기 소실로 인한 장기 의존성 문제.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">8. LSTM의 게이트가 <u>아닌</u> 것은?</p>
+    <ol type="①"><li>Forget gate</li><li>Input gate</li><li>Output gate</li><li>Reset gate</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>④</b> — Reset gate는 GRU의 게이트다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">9. GRU에 대한 설명으로 옳은 것은?</p>
+    <ol type="①"><li>LSTM보다 게이트가 많다</li><li>셀 상태와 은닉 상태를 모두 분리해 사용</li><li>LSTM을 간소화해 파라미터가 더 적다</li><li>이미지 전용 모델이다</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>③</b> — 게이트 2개, 기억 통합, 더 가벼움.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">10. Inception에서 1×1 합성곱을 쓰는 주된 이유는?</p>
+    <ol type="①"><li>이미지를 회전시키려고</li><li>채널 수(차원)를 줄여 파라미터·연산량을 절감하려고</li><li>풀링을 대체하려고</li><li>색을 추가하려고</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — 1×1 conv = 채널 간 정보 결합 + 차원 축소.</div></details>
+  </div>
+
+  <h3>단답형(빈칸 채우기) 5문제</h3>
+
+  <div class="q"><p class="qn">11. CNN에서 합성곱 결과로 만들어지는 특징 그림을 (　　　　)(이)라 한다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>특징 맵(Feature Map)</b></div></details></div>
+
+  <div class="q"><p class="qn">12. 컬러(RGB) 이미지의 채널 수는 (　)개, 흑백 이미지는 (　)개다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>3개, 1개</b></div></details></div>
+
+  <div class="q"><p class="qn">13. RNN에서 매 시점에 같은 가중치를 사용하는 것을 (　　　　　)(이)라 한다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>파라미터 공유(Parameter sharing)</b></div></details></div>
+
+  <div class="q"><p class="qn">14. LSTM에서 장기 정보를 실어 나르는 상태는 (　　　　), 단기 정보를 담는 상태는 (　　　　)다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>셀 상태(cell state), 은닉 상태(hidden state)</b></div></details></div>
+
+  <div class="q"><p class="qn">15. GRU의 두 게이트는 (　　　　) 게이트와 (　　　　) 게이트다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>업데이트(update), 리셋(reset)</b></div></details></div>
+
+  <h3>서술형 2문제</h3>
+
+  <div class="q"><p class="qn">16. CNN이 일반 완전연결(FC) 신경망과 다른 점을 ‘지역성’과 ‘가중치 공유’ 개념을 포함해 설명하시오.</p>
+    <details class="ans"><summary>모범답안 보기</summary><div class="body">
+      <b>핵심 답안:</b> ① <b>지역성(Locality)</b> — FC는 모든 픽셀을 한꺼번에 연결해 위치 정보가 사라지지만, CNN은 작은 영역(주변)만 연결해 “위 정보를 잃지 않고” 위치별 특징을 학습한다. ② <b>가중치 공유(Weight sharing)</b> — 같은 필터를 이미지 전체에 반복 적용하므로, 적은 수의 가중치만으로 어디에 있든 같은 패턴을 찾아낼 수 있다(필터가 가진 패턴을 찾아 스캔). 결과적으로 파라미터가 훨씬 적고, 풀링과 함께 쌓으면 앞쪽은 단순한 특징, 뒤쪽은 복잡한 특징을 단계적으로 추출한다.
+    </div></details>
+  </div>
+
+  <div class="q"><p class="qn">17. RNN의 장기 의존성 문제가 무엇이며, LSTM이 이를 어떻게 완화하는지 게이트 구조를 들어 설명하시오.</p>
+    <details class="ans"><summary>모범답안 보기</summary><div class="body">
+      <b>핵심 답안:</b> RNN은 이전 시점의 은닉 상태를 이어받아 순서 정보를 반영하지만, 시퀀스가 길어지면 역전파(BPTT) 과정에서 기울기가 반복 곱해지며 0에 수렴하는 <b>기울기 소실</b>이 일어나, 먼 과거 정보를 학습하지 못한다(<b>장기 의존성 문제</b>). LSTM은 정보를 길게 실어 나르는 <b>셀 상태(cell state)</b>를 따로 두고, ① <b>망각 게이트</b>로 과거 정보 중 버릴 것을, ② <b>입력 게이트</b>로 새로 저장할 것을, ③ <b>출력 게이트</b>로 내보낼 것을 0~1 값으로 조절한다. 그 결과 중요한 정보는 오래 유지하고 불필요한 정보는 버려, 긴 시퀀스에서도 기억을 안정적으로 보존해 문제를 완화한다.
+    </div></details>
+  </div>
+
+  <h3>추가 연습 (자주 틀리는 함정 모음)</h3>
+
+  <div class="q"><p class="qn">A1. ResNet이 해결하려 한 ‘학습 저하(Degradation)’ 문제에 대한 설명으로 옳은 것은?</p>
+    <ol type="①"><li>훈련은 잘되는데 테스트 성능만 나쁜 현상</li><li>망이 깊어지자 훈련 오류조차 더 커진 현상</li><li>데이터가 부족해 생기는 현상</li><li>학습률이 너무 큰 현상</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — Degradation은 <b>훈련 오류부터</b> 나빠지는 문제로, 테스트만 나빠지는 <b>과적합과 원인이 다르다.</b> ①은 과적합 설명.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">A2. AR 모델과 MA 모델의 차이로 옳은 것은?</p>
+    <ol type="①"><li>AR=과거 오차 기반, MA=과거 값 기반</li><li>AR=과거 값(values) 기반, MA=과거 잔차 오차(residual errors) 기반</li><li>둘 다 이미지 처리 모델</li><li>둘 다 차분(differencing)을 사용</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>②</b> — AR=past values, MA=residual errors. 바꿔 쓴 ①이 단골 오답.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">A3. LSTM에서 게이트(망각·입력·출력)의 0~1 값을 만들 때 쓰는 활성화 함수는?</p>
+    <ol type="①"><li>ReLU</li><li>tanh</li><li>시그모이드(σ)</li><li>Softmax</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>③</b> — 게이트=시그모이드(0~1). 임시 셀 상태 c̃ₜ는 tanh(−1~1).</div></details>
+  </div>
+
+  <div class="q"><p class="qn">A4. LSTM에서 임시 셀 상태(새 기억 후보) c̃ₜ를 만들 때 사용하는 함수는 (　　　)이며, 출력 범위는 (　　　)이다.</p>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>tanh, −1 ~ 1</b></div></details>
+  </div>
+
+  <div class="q"><p class="qn">A5. 다음 중 <u>학습 파라미터가 없는</u> 층은?</p>
+    <ol type="①"><li>Convolution Layer</li><li>Fully Connected Layer</li><li>Pooling Layer</li><li>모두 학습한다</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>③</b> — 풀링은 최댓값/평균을 ‘고르기’만 하므로 학습할 weight가 없다.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">A6. 입력 32×32, 필터 5×5, padding=0, stride=1일 때 출력 크기는?</p>
+    <ol type="①"><li>26×26</li><li>27×27</li><li>28×28</li><li>30×30</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>③</b> — (32−5+0)/1+1 = 28 → 28×28.</div></details>
+  </div>
+
+  <div class="q"><p class="qn">A7. LSTM과 GRU의 비교로 옳지 <u>않은</u> 것은?</p>
+    <ol type="①"><li>게이트 수: LSTM 3개, GRU 2개</li><li>GRU는 셀 상태(cell state)가 없다</li><li>GRU가 파라미터가 더 적고 보통 더 빠르다</li><li>GRU가 게이트가 더 많아 무겁다</li></ol>
+    <details class="ans"><summary>정답 보기</summary><div class="body"><b>④</b> — GRU가 더 적고 가볍다. ①②③은 옳음.</div></details>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <hr class="soft">
+  <p>이 자료는 업로드된 강의 PDF(CNN / RNN→Transformer) 내용을 바탕으로 초심자용으로 재구성한 정리본입니다. 시험 범위는 CNN ~ GRU.</p>
+  <p>화이팅! 치트시트만 입에 붙여도 객관식·단답형은 충분히 잡을 수 있어요.</p>
+</footer>
+
+<script>
+  // toc active highlight
+  const links=[...document.querySelectorAll('nav.toc a')];
+  const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+  const obs=new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ links.forEach(l=>l.style.color=''); const a=map.get(e.target.id); if(a){a.style.color='#1E3A6E';a.style.background='#EAF0FA';} }});
+  },{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
